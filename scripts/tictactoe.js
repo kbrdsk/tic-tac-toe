@@ -72,22 +72,26 @@ const renderer = (() => {
 		}
 	}
 
-	return {draw};	
+	let gameOver = (currentGame) => {
+		setTimeout(() => {
+			if(currentGame.state() === 'draw') alert('Draw!');
+			else alert(`Game Over, `
+				+ `${currentGame.activePlayer().toUpperCase()} Wins!`);
+		}, 300);
+	}
+
+	return {draw, gameOver};	
 })();
 
-const randomAI = (() => {
-	let play = (board) => {
+const ai = (() => {
+	let random = (board) => {
 		let playableIndices = Array.from(Array(9).keys())
 								   .filter(i => board[i] === null);
 		let choice = Math.floor(playableIndices.length * Math.random());
 		return (playableIndices[choice]);
 	}
 
-	return {play};
-})();
-
-const unbeatableAI = (() => {
-	let play = (board) => {
+	let unbeatable = (board) => {
 		let playableIndices = Array.from(Array(9).keys())
 		                           .filter(i => board[i] === null);
 		let potentialMoves = playableIndices.map(i => {
@@ -143,7 +147,7 @@ const unbeatableAI = (() => {
 		return Math.min(...winValues);
 	}
 
-	return {play};
+	return {random, unbeatable};
 })();
 
 const controller = (() => {
@@ -152,26 +156,22 @@ const controller = (() => {
 	let players = {x: 'user', o: 'ai'};
 	let boardControl = document.getElementById('board');
 
-
-	let gameOverAlert = () => {
-		if(currentGame.state() === 'draw') alert('Draw!');
-		else alert(`Game Over, ${currentGame.activePlayer().toUpperCase()} Wins!`);
-		setTimeout(reset, 500);
-	}
-
 	let reset = () => {
 		currentGame = game();
 		renderer.draw(board, currentGame.board());
 	}
 
+	let aiPlay = () => {
+		return ai.unbeatable(currentGame.board());
+	}
+
 	let aiTurn = () => {
 		let boardSquares = boardControl.getElementsByTagName('*');
 		for(let square of boardSquares) square.disabled = true;
-		let aiPlay = board[unbeatableAI.play(currentGame.board())];
 		setTimeout(() => {
-			playSquare(aiPlay);
+			playSquare(board[aiPlay()]);
 			for(let square of boardSquares) square.disabled = false;
-		}, 1000);
+		}, 300);
 	}
 
 	let playSquare = (square) => {
@@ -179,7 +179,8 @@ const controller = (() => {
 			currentGame.advance(board.indexOf(square));
 			renderer.draw(board, currentGame.board());
 			if(currentGame.state() !== 'active'){
-				setTimeout(gameOverAlert, 300);
+				renderer.gameOver(currentGame);
+				setTimeout(reset, 300);
 			} 
 			if(players[currentGame.activePlayer()] !== 'user'){
 				aiTurn();
