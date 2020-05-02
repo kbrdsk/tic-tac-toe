@@ -85,69 +85,54 @@ const renderer = (() => {
 
 const ai = (() => {
 	let random = (board) => {
-		let playableIndices = Array.from(Array(9).keys())
-								   .filter(i => board[i] === null);
-		let choice = Math.floor(playableIndices.length * Math.random());
-		return (playableIndices[choice]);
+		let potentialMoves = playableIndices(board);
+		let move = Math.floor(potentialMoves.length * Math.random());
+		return (potentialMoves[choice]);
 	}
 
-	let unbeatable = (board) => {
-		let playableIndices = Array.from(Array(9).keys())
-		                           .filter(i => board[i] === null);
-		let potentialMoves = playableIndices.map(i => {
-			let simGame = game();
-			simGame.fromBoard(board);
-			simGame.advance(i);
-			if(simGame.state() === 'victory'){
-				return [i, 1];
-			}else if(simGame.state() === 'draw'){
-				return [i, 0];
-			}
-			else return [i, min(simGame.board())];
+	let unbeatable = (board, tryingToWin = true) => {
+		let winVals = winValues(board, tryingToWin);
+		let potentialMoves = playableIndices(board).map((pos, index) => {
+			return [pos, winVals[index]];
 		});
-		let move = potentialMoves.find(([play, winVal]) => {
+		let move = potentialMoves.find(([pos, winVal]) => {
 			return potentialMoves.every(([_, winVal2]) => winVal >= winVal2);
 		});
 		return move[0];
 
 	}
 
+	let beatable = board => unbeatable(board, false);
+
+	function playableIndices(board){
+		return Array.from(Array(9).keys())
+								  .filter(i => board[i] === null);
+	}
+
 	function max(board){
-		let playableIndices = Array.from(Array(9).keys())
-		                           .filter(i => board[i] === null);
-		let winValues = playableIndices.map(i => {
-			let simGame = game();
-			simGame.fromBoard(board);
-			simGame.advance(i);
-			if(simGame.state() === 'victory'){
-				return 1;
-			}else if(simGame.state() === 'draw'){
-				return 0;
-			}
-			else return min(simGame.board());
-		});
-		return Math.max(...winValues);
+		return Math.max(...winValues(board, true));
 	}
 
 	function min(board){
-		let playableIndices = Array.from(Array(9).keys())
-		                           .filter(i => board[i] === null);
-		let winValues = playableIndices.map(i => {
+		return Math.min(...winValues(board, false));
+	}
+
+	function winValues(board, aiTurn){
+		let valueFunction = aiTurn? min: max;
+		return playableIndices(board).map(i => {
 			let simGame = game();
 			simGame.fromBoard(board);
 			simGame.advance(i);
 			if(simGame.state() === 'victory'){
-				return -1;
+				return aiTurn? 1 : -1;
 			}else if(simGame.state() === 'draw'){
 				return 0;
 			}
-			else return max(simGame.board());
+			else return valueFunction(simGame.board());
 		});
-
-		return Math.min(...winValues);
 	}
 
-	return {random, unbeatable};
+	return {random, unbeatable, beatable};
 })();
 
 const controller = (() => {
@@ -162,7 +147,7 @@ const controller = (() => {
 	}
 
 	let aiPlay = () => {
-		return ai.unbeatable(currentGame.board());
+		return ai.beatable(currentGame.board());
 	}
 
 	let aiTurn = () => {
