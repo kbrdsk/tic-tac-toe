@@ -87,7 +87,7 @@ const ai = (() => {
 	let random = (board) => {
 		let potentialMoves = playableIndices(board);
 		let move = Math.floor(potentialMoves.length * Math.random());
-		return (potentialMoves[choice]);
+		return (potentialMoves[move]);
 	}
 
 	let unbeatable = (board, tryingToWin = true) => {
