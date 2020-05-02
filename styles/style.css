@@ -14,6 +14,7 @@ button{
     border: none;
     color: #777;
     background-color: #fff;
+    cursor: pointer;
 }
 
 button:focus{
@@ -24,7 +25,8 @@ button:focus{
 	width: 50px;
 	position: absolute;
 	top: calc(50% - 400px);
-	left: calc(50% + 400px);
+	left: calc(50% + 350px);
+	cursor: pointer;
 }
 
 #game-mode-selector{
@@ -33,6 +35,7 @@ button:focus{
 	left: calc(50% - 400px);
 	display: flex;
 	flex-direction: column;
+	cursor: pointer;
 }
 
 #game-mode-list{
