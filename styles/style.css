@@ -1,0 +1,8 @@
+#board{
+	position: absolute;
+	top: calc(50% - 300px);
+	left: calc(50% - 300px);
+	display: grid;
+	grid-template-rows: repeat(3, 200px);
+	grid-template-columns: repeat(3, 200px);
+}

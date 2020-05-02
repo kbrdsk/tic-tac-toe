@@ -56,3 +56,38 @@ const game = () => {
 
 	return {advance, board, state, activePlayer};
 }
+
+const renderer = (() => {
+	let draw = (board, gameState) => {
+		for(let i = 0; i < 9; i++){
+			board[i].textContent = gameState[i];
+		}
+	}
+
+	return {draw};
+})();
+
+const controller = (() => {
+	let board = [];
+	let currentGame = game();
+
+	let playSquare = (square) => {
+		if(currentGame.state() === 'active'){
+			currentGame.advance(board.indexOf(square));
+			renderer.draw(board, currentGame.board());
+			if(currentGame.state() !== 'active'){
+				setTimeout(() => alert('Game Over'), 500);
+			} 
+		}	
+	}
+
+	for(let i = 0; i < 9; i++){
+		let square = document.createElement('button');
+		square.addEventListener('click', e => playSquare(e.target));
+		board.push(square);
+		document.getElementById('board').appendChild(square);
+	}
+
+	return {board};
+})();
+
