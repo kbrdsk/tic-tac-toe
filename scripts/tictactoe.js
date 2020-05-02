@@ -71,12 +71,17 @@ const controller = (() => {
 	let board = [];
 	let currentGame = game();
 
+	let gameOverAlert = () => {
+		if(currentGame.state() === 'draw') alert('Draw!');
+		else alert(`Game Over, ${currentGame.activePlayer().toUpperCase()} Wins!`);
+	}
+
 	let playSquare = (square) => {
 		if(currentGame.state() === 'active'){
 			currentGame.advance(board.indexOf(square));
 			renderer.draw(board, currentGame.board());
 			if(currentGame.state() !== 'active'){
-				setTimeout(() => alert('Game Over'), 500);
+				setTimeout(gameOverAlert, 500);
 			} 
 		}	
 	}
