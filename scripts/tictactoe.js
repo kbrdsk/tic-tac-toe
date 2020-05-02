@@ -53,8 +53,16 @@ const game = () => {
 		return false;
 	}
 
+	let fromBoard = (board) => {
+		history = [board];
+		if(board.filter(space => space === null).length % 2 === 0){
+			player = 'o';
+		}
+		else player = 'x';
+	}
 
-	return {advance, board, state, activePlayer};
+
+	return {advance, board, state, activePlayer, fromBoard};
 }
 
 const renderer = (() => {
@@ -64,12 +72,86 @@ const renderer = (() => {
 		}
 	}
 
-	return {draw};
+	return {draw};	
+})();
+
+const randomAI = (() => {
+	let play = (board) => {
+		let playableIndices = Array.from(Array(9).keys())
+								   .filter(i => board[i] === null);
+		let choice = Math.floor(playableIndices.length * Math.random());
+		return (playableIndices[choice]);
+	}
+
+	return {play};
+})();
+
+const unbeatableAI = (() => {
+	let play = (board) => {
+		let playableIndices = Array.from(Array(9).keys())
+		                           .filter(i => board[i] === null);
+		let potentialMoves = playableIndices.map(i => {
+			let simGame = game();
+			simGame.fromBoard(board);
+			simGame.advance(i);
+			if(simGame.state() === 'victory'){
+				return [i, 1];
+			}else if(simGame.state() === 'draw'){
+				return [i, 0];
+			}
+			else return [i, min(simGame.board())];
+		});
+		let move = potentialMoves.find(([play, winVal]) => {
+			return potentialMoves.every(([_, winVal2]) => winVal >= winVal2);
+		});
+		return move[0];
+
+	}
+
+	function max(board){
+		let playableIndices = Array.from(Array(9).keys())
+		                           .filter(i => board[i] === null);
+		let winValues = playableIndices.map(i => {
+			let simGame = game();
+			simGame.fromBoard(board);
+			simGame.advance(i);
+			if(simGame.state() === 'victory'){
+				return 1;
+			}else if(simGame.state() === 'draw'){
+				return 0;
+			}
+			else return min(simGame.board());
+		});
+		return Math.max(...winValues);
+	}
+
+	function min(board){
+		let playableIndices = Array.from(Array(9).keys())
+		                           .filter(i => board[i] === null);
+		let winValues = playableIndices.map(i => {
+			let simGame = game();
+			simGame.fromBoard(board);
+			simGame.advance(i);
+			if(simGame.state() === 'victory'){
+				return -1;
+			}else if(simGame.state() === 'draw'){
+				return 0;
+			}
+			else return max(simGame.board());
+		});
+
+		return Math.min(...winValues);
+	}
+
+	return {play};
 })();
 
 const controller = (() => {
 	let board = [];
 	let currentGame = game();
+	let players = {x: 'user', o: 'ai'};
+	let boardControl = document.getElementById('board');
+
 
 	let gameOverAlert = () => {
 		if(currentGame.state() === 'draw') alert('Draw!');
@@ -82,6 +164,16 @@ const controller = (() => {
 		renderer.draw(board, currentGame.board());
 	}
 
+	let aiTurn = () => {
+		let boardSquares = boardControl.getElementsByTagName('*');
+		for(let square of boardSquares) square.disabled = true;
+		let aiPlay = board[unbeatableAI.play(currentGame.board())];
+		setTimeout(() => {
+			playSquare(aiPlay);
+			for(let square of boardSquares) square.disabled = false;
+		}, 1000);
+	}
+
 	let playSquare = (square) => {
 		if(currentGame.state() === 'active'){
 			currentGame.advance(board.indexOf(square));
@@ -89,16 +181,19 @@ const controller = (() => {
 			if(currentGame.state() !== 'active'){
 				setTimeout(gameOverAlert, 300);
 			} 
+			if(players[currentGame.activePlayer()] !== 'user'){
+				aiTurn();
+			}
 		}	
 	}
+
 
 	for(let i = 0; i < 9; i++){
 		let square = document.createElement('button');
 		square.addEventListener('click', e => playSquare(e.target));
 		board.push(square);
-		document.getElementById('board').appendChild(square);
+		boardControl.appendChild(square);
 	}
 
 	return {board};
 })();
-
