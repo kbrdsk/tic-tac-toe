@@ -123,11 +123,15 @@ const ai = (() => {
 	}
 
 	function max(board){
-		return Math.max(...winValues(board, true));
+		let winVals = winValues(board, true);
+		let maxStates = winVals.filter(val => val === Math.max(...winVals));
+		return maxStates.reduce((acc, val) => acc + val, 0);
 	}
 
 	function min(board){
-		return Math.min(...winValues(board, false));
+		let winVals = winValues(board, false);
+		let minStates = winVals.filter(val => val === Math.min(...winVals));
+		return minStates.reduce((acc, val) => acc + val, 0);
 	}
 
 	function winValues(board, aiTurn){
