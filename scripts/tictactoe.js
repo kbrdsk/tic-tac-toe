@@ -102,7 +102,7 @@ const ai = (() => {
 
 	}
 
-	let beatable = board => unbeatable(board, false);
+	let easy = board => unbeatable(board, false);
 
 	function playableIndices(board){
 		return Array.from(Array(9).keys())
@@ -132,14 +132,28 @@ const ai = (() => {
 		});
 	}
 
-	return {random, unbeatable, beatable};
+	return {easy, random, unbeatable};
 })();
 
 const controller = (() => {
-	let board = [];
-	let currentGame = game();
-	let players = {x: 'user', o: 'ai'};
-	let boardControl = document.getElementById('board');
+	let board = [],
+		currentGame = game(),
+		players = {x: 'user', o: 'user'},
+		aiType = 'easy';
+
+	let boardControl = document.getElementById('board'),
+		resetButton = document.getElementById('reset-button'),
+		activeGameModeDisplay = document.getElementById('active-game-mode-display');
+		gameModeList = document.getElementById('game-mode-list');
+
+	let gameModes = {
+		multiplayer: document.getElementsByClassName('multiplayer')[0],
+		easy: document.getElementsByClassName('easy-ai')[0],
+		random: document.getElementsByClassName('random-ai')[0],
+		unbeatable: document.getElementsByClassName('unbeatable-ai')[0],
+	};
+
+	let activeGameMode = gameModes.multiplayer;
 
 	let reset = () => {
 		currentGame = game();
@@ -147,7 +161,7 @@ const controller = (() => {
 	}
 
 	let aiPlay = () => {
-		return ai.beatable(currentGame.board());
+		return ai[aiType](currentGame.board());
 	}
 
 	let aiTurn = () => {
@@ -173,6 +187,34 @@ const controller = (() => {
 		}	
 	}
 
+	let openGameModeSelect = () => {
+		gameModeList.style.display = 'flex';
+		activeGameModeDisplay.disabled = true;
+	}
+
+	let activateGameMode = (mode) => {
+		if(mode === 'multiplayer') players.o = 'user';
+		else{
+			players.o = 'ai';
+			aiType = mode;
+		} 
+
+		gameModeList.style.display = 'none';
+		activeGameMode.hidden = false;
+		activeGameModeDisplay.removeChild(activeGameModeDisplay.lastElementChild);
+		activeGameModeDisplay.appendChild(gameModes[mode].cloneNode());
+		gameModes[mode].hidden = true;
+		activeGameMode = gameModes[mode];
+		activeGameModeDisplay.disabled = false;
+	}
+
+	resetButton.addEventListener('click', reset);
+	activeGameModeDisplay.addEventListener('click', openGameModeSelect);
+	for(let mode in gameModes){
+		gameModes[mode].addEventListener('click', () => activateGameMode(mode));
+	}
+
+	activateGameMode('multiplayer');
 
 	for(let i = 0; i < 9; i++){
 		let square = document.createElement('button');

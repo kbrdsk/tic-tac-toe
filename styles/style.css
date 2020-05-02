@@ -19,3 +19,32 @@ button{
 button:focus{
 	outline: none;
 }
+
+#reset-button{
+	width: 50px;
+	position: absolute;
+	top: calc(50% - 400px);
+	left: calc(50% + 400px);
+}
+
+#game-mode-selector{
+	position: absolute;
+	top: calc(50% - 400px);
+	left: calc(50% - 400px);
+	display: flex;
+	flex-direction: column;
+}
+
+#game-mode-list{
+	display:flex;
+	flex-direction: column;
+}
+
+.mode{
+	width: 50px;
+	margin: 7px 0px;
+}
+
+#reset-button, .mode{
+	opacity: 0.8;
+}

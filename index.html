@@ -7,8 +7,18 @@
 	<title>Tic Tac Toe</title>
 </head>
 <body>
-	<div id="game-mode-switch"></div>
-	<div id="new-game"></div>
+	<div id="game-mode-selector">
+		<div id="active-game-mode-display">
+			<div></div>
+		</div>
+		<div id="game-mode-list">
+			<img class="multiplayer mode" src="images/multiplayer.png"></img>
+			<img class="easy-ai mode" src="images/giving.png"></img>
+			<img class="random-ai mode" src="images/random.png"></img>
+			<img class="unbeatable-ai mode" src="images/warning.png"></img>
+		</div>
+	</div>
+	<img id="reset-button" src="images/reset.png"></img>
 	<div id="board"></div>
 	<script src="scripts/tictactoe.js"></script>
 </body>
