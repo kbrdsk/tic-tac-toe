@@ -12,7 +12,7 @@
 button{
 	font-size: 100px;
     border: none;
-    color: #777;
+    color: #555;
     background-color: #fff;
     cursor: pointer;
 }
@@ -50,4 +50,8 @@ button:focus{
 
 #reset-button, .mode{
 	opacity: 0.8;
+}
+
+button[preview=true]{
+	color: #ddd;
 }

@@ -80,7 +80,20 @@ const renderer = (() => {
 		}, 300);
 	}
 
-	return {draw, gameOver};	
+	let showMove = (square, player) => {
+		if(!square.textContent){
+			square.setAttribute('preview', 'true');
+			square.textContent = player;
+		}
+
+	}
+
+	let hideMove = (square) => {
+		if(square.getAttribute('preview') === 'true') square.textContent = '';
+		square.setAttribute('preview', 'false');
+	}
+
+	return {draw, gameOver, showMove, hideMove};	
 })();
 
 const ai = (() => {
@@ -176,6 +189,7 @@ const controller = (() => {
 	let playSquare = (square) => {
 		if(currentGame.state() === 'active'){
 			currentGame.advance(board.indexOf(square));
+			square.setAttribute('preview', 'false');
 			renderer.draw(board, currentGame.board());
 			if(currentGame.state() !== 'active'){
 				renderer.gameOver(currentGame);
@@ -218,6 +232,13 @@ const controller = (() => {
 	for(let i = 0; i < 9; i++){
 		let square = document.createElement('button');
 		square.addEventListener('click', e => playSquare(e.target));
+		square.addEventListener('mouseenter', e => {
+			if(currentGame.state() === 'active'
+				&& players[currentGame.activePlayer()] === 'user'){
+				renderer.showMove(e.target, currentGame.activePlayer());
+			}
+		});
+		square.addEventListener('mouseleave', e => renderer.hideMove(e.target));
 		board.push(square);
 		boardControl.appendChild(square);
 	}
