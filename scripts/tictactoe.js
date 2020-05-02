@@ -187,9 +187,9 @@ const controller = (() => {
 		}	
 	}
 
-	let openGameModeSelect = () => {
-		gameModeList.style.display = 'flex';
-		activeGameModeDisplay.disabled = true;
+	let toggleGameModeSelect = () => {
+		let display = gameModeList.style.display;
+		gameModeList.style.display = (display === 'flex')? 'none': 'flex';
 	}
 
 	let activateGameMode = (mode) => {
@@ -205,11 +205,10 @@ const controller = (() => {
 		activeGameModeDisplay.appendChild(gameModes[mode].cloneNode());
 		gameModes[mode].hidden = true;
 		activeGameMode = gameModes[mode];
-		activeGameModeDisplay.disabled = false;
 	}
 
 	resetButton.addEventListener('click', reset);
-	activeGameModeDisplay.addEventListener('click', openGameModeSelect);
+	activeGameModeDisplay.addEventListener('click', toggleGameModeSelect);
 	for(let mode in gameModes){
 		gameModes[mode].addEventListener('click', () => activateGameMode(mode));
 	}
